@@ -1,0 +1,111 @@
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  align-items: flex-start;
+}
+@media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
+
+.listCol   { display: flex; flex-direction: column; }
+.detailCol { display: flex; flex-direction: column; position: sticky; top: 0; }
+
+/* ── Filter bar ── */
+.filterBar {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap; margin-bottom: 14px;
+}
+.filterBar .form-select { height: 34px; font-size: 12px; }
+
+.quickPills { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 11px; font-weight: 500;
+  color: var(--text-2); cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: all 0.15s;
+}
+.pill:hover   { border-color: var(--border-2); color: var(--text-1); }
+.pillActive   { border-color: var(--brand); background: var(--brand-dim); color: var(--brand); font-weight: 600; }
+
+.pillDot      { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dotPending   { background: var(--neutral); }
+.dotProgress  { background: var(--warn); }
+
+/* ── Table ── */
+.rowSelected td { background: var(--brand-dim) !important; }
+.actionLabel { display: inline; }
+@media (max-width: 1200px) { .actionLabel { display: none; } }
+
+/* ── Detail panel ── */
+
+/* Status track */
+.statusTrack {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 4px;
+}
+.trackStep {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.trackDot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.trackDotPending  { background: var(--surface-4); border: 2px solid var(--border-2); }
+.trackDotCurrent  { background: var(--brand); box-shadow: 0 0 0 3px var(--brand-dim); }
+.trackDotDone     { background: var(--ok); }
+.trackDotNA       { background: var(--danger); }
+
+.trackLabel {
+  font-size: 10px; font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+.trackLabelActive { color: var(--brand); }
+
+.trackLine {
+  flex: 1; height: 2px; min-width: 16px; max-width: 28px;
+  background: var(--border-2); border-radius: 1px; margin: 0 4px;
+}
+.trackLineDone { background: var(--ok); }
+
+/* Detail sections */
+.detailSection { margin-bottom: 14px; }
+.detailSection:last-child { margin-bottom: 0; }
+.detailLabel {
+  font-size: 10px; font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+.detailValue {
+  font-size: 13px; color: var(--text-1);
+  line-height: 1.55;
+}
+
+.equipRow {
+  display: flex; flex-direction: column; gap: 4px;
+}
+
+/* Timeline */
+.timeline { display: flex; flex-direction: column; gap: 8px; }
+.timelineRow {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.timelineTitle { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.4px; }
+.timelineVal   { font-size: 12px; font-weight: 600; color: var(--text-1); margin-top: 2px; }

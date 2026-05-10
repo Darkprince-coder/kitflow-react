@@ -1,0 +1,18 @@
+.filterBar {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap; margin-bottom: 14px;
+}
+.filterBar .form-select { height: 34px; font-size: 12px; }
+
+.catChip {
+  display: inline-block; padding: 2px 8px; border-radius: 20px;
+  font-size: 10px; font-weight: 700; white-space: nowrap;
+}
+
+.stockNum {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 15px; font-weight: 700;
+}
+.stockOk     { color: var(--ok); }
+.stockWarn   { color: var(--warn); }
+.stockDanger { color: var(--danger); }

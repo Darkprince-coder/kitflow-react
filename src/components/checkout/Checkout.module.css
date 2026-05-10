@@ -1,0 +1,122 @@
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 16px;
+  align-items: flex-start;
+}
+@media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
+
+.formCol { display: flex; flex-direction: column; }
+.listCol { display: flex; flex-direction: column; }
+
+/* ── Stock strip ── */
+.stockStrip {
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.stockStripRow { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.stockName     { font-size: 12px; font-weight: 600; color: var(--text-1); }
+.stockMeta     { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+
+/* ── Borrower search ── */
+.searchBox {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 12px;
+  transition: border-color 0.15s;
+}
+.searchBox:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-dim); }
+.searchInput {
+  background: none; border: none; outline: none;
+  color: var(--text-1); font-size: 13px;
+  font-family: 'Plus Jakarta Sans', sans-serif; width: 100%;
+}
+.searchInput::placeholder { color: var(--text-3); }
+
+.dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--surface); border: 1px solid var(--border-2);
+  border-radius: 10px; box-shadow: var(--shadow-md);
+  z-index: 200; overflow: hidden;
+}
+.dropdownItem {
+  padding: 10px 14px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.dropdownItem:last-child  { border-bottom: none; }
+.dropdownItem:hover       { background: var(--surface-2); }
+.dropdownName  { font-size: 13px; font-weight: 600; color: var(--text-1); }
+.dropdownMeta  { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+.profileLoaded {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--ok); margin-top: 5px; font-weight: 600;
+}
+
+.orRow {
+  text-align: center; position: relative;
+  margin: 12px 0; font-size: 11px; color: var(--text-3);
+}
+.orRow::before {
+  content: ''; position: absolute; top: 50%; left: 0; right: 0;
+  height: 1px; background: var(--border);
+}
+.orRow span {
+  background: var(--surface); padding: 0 10px; position: relative;
+}
+
+/* ── Checkout cards ── */
+.coCard {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.coCard:hover { background: var(--surface-2); }
+.coCard:last-child { border-bottom: none; }
+
+.coHeader {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 8px; margin-bottom: 8px;
+}
+.coEquipName { font-size: 13px; font-weight: 700; color: var(--text-1); }
+
+.coMeta {
+  display: flex; flex-wrap: wrap; gap: 12px;
+}
+.coMetaItem {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--text-2);
+}
+.coMetaItem svg { color: var(--text-3); flex-shrink: 0; }
+
+/* ── Timestamps strip ── */
+.coTimestamps {
+  display: flex; align-items: center; gap: 0;
+  margin-top: 10px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.tsBlock {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 7px 12px; flex: 1;
+}
+.tsLabel  { font-size: 9px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; }
+.tsValue  { font-size: 12px; font-weight: 600; color: var(--text-2); display: flex; align-items: center; }
+.tsDivider { width: 1px; background: var(--border); align-self: stretch; flex-shrink: 0; }
+
+.coNotes {
+  font-size: 11px; color: var(--text-3); margin-top: 8px;
+  padding: 6px 10px;
+  background: var(--surface-3); border-radius: 6px;
+  border: 1px solid var(--border);
+  font-style: italic;
+}
+
+/* ── Error text ── */
+.err { font-size: 11px; color: var(--danger); margin-top: 3px; }

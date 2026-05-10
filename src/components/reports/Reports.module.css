@@ -1,0 +1,71 @@
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+@media (max-width: 1100px) { .statsGrid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .statsGrid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ── Tab bar ── */
+.tabBar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.tabBtn {
+  padding: 8px 16px;
+  font-size: 13px; font-weight: 500;
+  color: var(--text-2);
+  background: none; border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: all 0.15s;
+  margin-bottom: -1px;
+}
+.tabBtn:hover       { color: var(--text-1); }
+.tabBtnActive       { color: var(--brand); border-bottom-color: var(--brand); font-weight: 600; }
+
+/* ── Overview grid ── */
+.overviewGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  align-items: flex-start;
+}
+@media (max-width: 900px) { .overviewGrid { grid-template-columns: 1fr; } }
+.rightCol { display: flex; flex-direction: column; }
+
+/* ── Category chip ── */
+.catChip {
+  display: inline-block;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 10px; font-weight: 700; white-space: nowrap;
+}
+
+/* ── Overdue rows ── */
+.overdueRow {
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.overdueRow:last-child { border-bottom: none; }
+.overdueEquip { font-size: 13px; font-weight: 600; color: var(--text-1); }
+.overdueMeta  { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+/* ── Most borrowed bar chart ── */
+.popularRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.popularRow:last-child { border-bottom: none; }
+.popularName  { font-size: 12px; font-weight: 500; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.popularBar   { width: 80px; height: 5px; background: var(--surface-3); border-radius: 3px; overflow: hidden; }
+.popularBarFill { height: 5px; border-radius: 3px; background: var(--brand); opacity: 0.7; transition: width 0.4s ease; }
+.popularCount { font-family: 'Bricolage Grotesque', sans-serif; font-size: 14px; font-weight: 700; color: var(--brand); min-width: 20px; text-align: right; }
