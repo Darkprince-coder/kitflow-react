@@ -1,0 +1,15 @@
+.pill {
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  cursor: default; user-select: none;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+.dotLoading { background: var(--text-3); animation: pulse 1.5s infinite; }
+.dotOnline  { background: var(--ok); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ok) 25%, transparent); }
+.dotOffline { background: var(--warn); }
+.label { font-size: 10px; font-weight: 600; color: var(--text-2); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }

@@ -1,4 +1,5 @@
 import { Menu, Search, Bell, Plus } from 'lucide-react'
+import { DbStatus } from './DbStatus.jsx'
 import { useRef } from 'react'
 import s from './Topbar.module.css'
 
@@ -37,6 +38,7 @@ export function Topbar({ title, sub, onMenuClick, showSearch, searchValue, onSea
           </button>
         )}
 
+        <DbStatus />
         <button className="btn-icon hide-mobile" title="Notifications">
           <Bell size={15} />
         </button>
