@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Trash2, Package, CheckSquare, Square, CalendarDays, ChevronRight } from 'lucide-react'
 import { Modal }           from '../ui/Modal.jsx'
 import { Badge }           from '../ui/Badge.jsx'
@@ -35,7 +35,7 @@ export function CalendarPage({ onRegisterCta }) {
   const [typeFilter,    setTypeFilter]    = useState('')
   const [showPast,      setShowPast]      = useState(false)
 
-  useState(() => { onRegisterCta?.(() => openAddEvent()) })
+  useEffect(() => { onRegisterCta?.(() => openAddEvent()) }, [onRegisterCta])
 
   // ── Sort + filter events ─────────────────────────────────
   const now = new Date()

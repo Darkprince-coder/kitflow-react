@@ -1,5 +1,5 @@
 {
-  "name": "KitFlow — Equipment Management",
+  "name": "KitFlow \u2014 Equipment Management",
   "short_name": "KitFlow",
   "description": "Sports equipment checkout and inventory management",
   "start_url": "/",
@@ -8,12 +8,28 @@
   "background_color": "#0E0E10",
   "theme_color": "#0E0E10",
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
   ],
-  "categories": ["productivity", "sports"],
+  "categories": [
+    "productivity",
+    "sports"
+  ],
   "shortcuts": [
-    { "name": "Check-Out", "url": "/?page=checkout", "description": "Issue equipment" },
-    { "name": "Check-In",  "url": "/?page=checkin",  "description": "Return equipment" }
-  ]
+    {
+      "name": "Check-Out",
+      "url": "/?page=checkout",
+      "description": "Issue equipment"
+    },
+    {
+      "name": "Check-In",
+      "url": "/?page=checkin",
+      "description": "Return equipment"
+    }
+  ],
+  "screenshots": []
 }

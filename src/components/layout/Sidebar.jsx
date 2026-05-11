@@ -1,4 +1,4 @@
-import { Moon, Sun, Package, LayoutDashboard, ArrowRightLeft, ArrowLeftRight, Wrench, CalendarDays, Users, BarChart3, Home } from 'lucide-react'
+import { Moon, Sun, Package, LayoutDashboard, ArrowRightLeft, ArrowLeftRight, Wrench, CalendarDays, Users, BarChart3, Home, LogOut } from 'lucide-react'
 import { useApp } from '../../context/AppContext.jsx'
 import { useData } from '../../context/DataContext.jsx'
 import s from './Sidebar.module.css'
@@ -19,7 +19,7 @@ const NAV = [
   { id: 'reports',    label: 'Reports',          icon: BarChart3 },
 ]
 
-export function Sidebar({ currentPage, onNavigate, mobileOpen, onCloseMobile }) {
+export function Sidebar({ currentPage, onNavigate, mobileOpen, onCloseMobile, onSignOut, userEmail }) {
   const { theme, toggleTheme, config } = useApp()
   const { repairs } = useData()
   const openRepairs = repairs.filter(r => r.status === 'Pending' || r.status === 'In Progress').length
@@ -105,8 +105,23 @@ export function Sidebar({ currentPage, onNavigate, mobileOpen, onCloseMobile }) 
           })}
         </nav>
 
-        {/* Footer: theme toggle */}
+        {/* Footer: user info + sign-out + theme toggle */}
         <div className={s.footer}>
+          {userEmail && (
+            <div className={s.userRow}>
+              <div className={s.userAvatar}>
+                {userEmail[0].toUpperCase()}
+              </div>
+              <div className={s.userInfo}>
+                <div className={s.userEmail}>{userEmail}</div>
+              </div>
+              {onSignOut && (
+                <button className={s.signOutBtn} onClick={onSignOut} title="Sign out">
+                  <LogOut size={14} />
+                </button>
+              )}
+            </div>
+          )}
           <button className={s.themeBtn} onClick={toggleTheme}>
             <span className={s.navIcon}>
               {isDark ? <Moon size={15} /> : <Sun size={15} />}

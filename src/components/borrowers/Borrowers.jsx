@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { UserPlus, User, Phone, Shield, Users, Edit2, Clock, Package } from 'lucide-react'
 import { Modal }      from '../ui/Modal.jsx'
 import { Badge }      from '../ui/Badge.jsx'
@@ -29,6 +29,8 @@ export function Borrowers({ searchValue, onRegisterCta }) {
   const [form,        setForm]       = useState(EMPTY_FORM)
   const [errors,      setErrors]     = useState({})
   const [detailId,    setDetailId]   = useState(null)  // expanded profile
+
+  useEffect(() => { onRegisterCta?.(() => openAdd()) }, [onRegisterCta])
 
   const filtered = borrowers.filter(b => {
     const q = searchValue?.toLowerCase() || ''

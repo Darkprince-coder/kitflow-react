@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Wrench, Plus, CheckCircle, XCircle, RotateCcw, Clock } from 'lucide-react'
 import { Modal }      from '../ui/Modal.jsx'
 import { Badge }      from '../ui/Badge.jsx'
@@ -39,9 +39,9 @@ export function Repairs({ onRegisterCta }) {
   const [errors,       setErrors]       = useState({})
   const [detailId,     setDetailId]     = useState(null)
 
-  useState(() => {
+  useEffect(() => {
     onRegisterCta?.(() => { setForm(EMPTY_FORM); setErrors({}); setModalOpen(true) })
-  })
+  }, [onRegisterCta])
 
   const filtered = [...repairs]
     .filter(r => !statusFilter || r.status === statusFilter)

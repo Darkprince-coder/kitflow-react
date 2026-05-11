@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Edit2, ArrowRightLeft, Package } from 'lucide-react'
 import { Modal }           from '../ui/Modal.jsx'
 import { Badge }           from '../ui/Badge.jsx'
@@ -25,7 +25,7 @@ export function Equipment({ onNavigate, searchValue, onRegisterCta }) {
   const [errors,       setErrors]       = useState({})
 
   // Register the topbar CTA
-  useState(() => { onRegisterCta?.(() => openAdd()) })
+  useEffect(() => { onRegisterCta?.(() => openAdd()) }, [onRegisterCta])
 
   const filtered = equipment.filter(e => {
     const q   = searchValue?.toLowerCase() || ''
