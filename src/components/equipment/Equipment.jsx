@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Edit2, ArrowRightLeft, Package } from 'lucide-react'
+import { Plus, Edit2, ArrowRightLeft, Package, Trash2 } from 'lucide-react'
 import { Modal }           from '../ui/Modal.jsx'
 import { Badge }           from '../ui/Badge.jsx'
 import { EmptyState }      from '../ui/EmptyState.jsx'
@@ -14,7 +14,7 @@ const EMPTY_FORM = {
 }
 
 export function Equipment({ onNavigate, searchValue, onRegisterCta }) {
-  const { equipment, categories, addEquipment, updateEquipment } = useData()
+  const { equipment, categories, addEquipment, updateEquipment, deleteEquipment } = useData()
   const { showToast } = useApp()
 
   const [catFilter,    setCatFilter]    = useState('')
@@ -127,13 +127,6 @@ export function Equipment({ onNavigate, searchValue, onRegisterCta }) {
           {filtered.length} item{filtered.length !== 1 ? 's' : ''}
         </span>
 
-        <button
-          className="btn btn-primary btn-sm"
-          style={{ marginLeft: 'auto' }}
-          onClick={openAdd}
-        >
-          <Plus size={14} /> Add Equipment
-        </button>
       </div>
 
       {/* ── Table ── */}
@@ -216,6 +209,16 @@ export function Equipment({ onNavigate, searchValue, onRegisterCta }) {
                               title="Issue"
                             >
                               <ArrowRightLeft size={12} />
+                            </button>
+                            <button
+                              className="btn btn-danger btn-sm"
+                              title="Delete equipment"
+                              onClick={() => {
+                                if (window.confirm(`Delete "${item.name}" from inventory?`))
+                                  deleteEquipment(item.id)
+                              }}
+                            >
+                              <Trash2 size={12} />
                             </button>
                           </div>
                         </td>

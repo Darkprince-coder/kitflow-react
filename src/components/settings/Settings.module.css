@@ -1,0 +1,63 @@
+.wrap { max-width: 820px; }
+
+.tabs {
+  display: flex; gap: 4px; margin-bottom: 20px;
+  border-bottom: 1px solid var(--border); padding-bottom: 0;
+}
+.tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px; font-size: 13px; font-weight: 500;
+  color: var(--text-2); background: none; border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: all 0.15s; margin-bottom: -1px;
+  text-transform: capitalize;
+}
+.tab:hover  { color: var(--text-1); }
+.tabActive  { color: var(--brand); border-bottom-color: var(--brand); font-weight: 600; }
+
+.section { }
+.sectionHead { margin-bottom: 18px; }
+.sectionTitle {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 15px; font-weight: 700; color: var(--text-1); margin-bottom: 5px;
+}
+.sectionSub { font-size: 12px; color: var(--text-3); line-height: 1.6; }
+
+/* Roles */
+.roleGrid { display: flex; flex-direction: column; gap: 12px; }
+.roleCard {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+}
+.roleHeader {
+  padding: 14px 16px 12px;
+  border-left: 3px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.roleName { font-family: 'Bricolage Grotesque', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.roleDesc  { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+.permList  { padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; list-style: none; }
+.permItem  { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-2); }
+.permDot   { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+/* Categories */
+.addRow { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
+.catGrid { display: flex; flex-wrap: wrap; gap: 8px; }
+.catTag {
+  padding: 5px 13px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  border: 1px solid transparent;
+}
+
+/* Account */
+.infoGrid { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.infoRow {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+}
+.infoRow:last-child { border-bottom: none; }
+.infoLabel { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.4px; min-width: 130px; flex-shrink: 0; padding-top: 1px; }
+.infoVal   { font-size: 13px; color: var(--text-1); flex: 1; }
+
+code { font-family: monospace; font-size: 11px; }

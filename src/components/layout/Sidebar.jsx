@@ -1,4 +1,4 @@
-import { Moon, Sun, Package, LayoutDashboard, ArrowRightLeft, ArrowLeftRight, Wrench, CalendarDays, Users, BarChart3, Home, LogOut } from 'lucide-react'
+import { Moon, Sun, Package, LayoutDashboard, ArrowRightLeft, ArrowLeftRight, Wrench, CalendarDays, Users, BarChart3, Home, LogOut, Settings } from 'lucide-react'
 import { useApp } from '../../context/AppContext.jsx'
 import { useData } from '../../context/DataContext.jsx'
 import s from './Sidebar.module.css'
@@ -17,6 +17,8 @@ const NAV = [
   { group: 'Insights' },
   { id: 'borrowers',  label: 'Players & Staff',  icon: Users },
   { id: 'reports',    label: 'Reports',          icon: BarChart3 },
+  { group: 'System' },
+  { id: 'settings',   label: 'Settings',         icon: Settings },
 ]
 
 export function Sidebar({ currentPage, onNavigate, mobileOpen, onCloseMobile, onSignOut, userEmail }) {
@@ -27,13 +29,13 @@ export function Sidebar({ currentPage, onNavigate, mobileOpen, onCloseMobile, on
 
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Mobile overlay — z-index LOWER than sidebar's z-index (100) */}
       {mobileOpen && (
         <div
           onClick={onCloseMobile}
           style={{
             position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
-            zIndex: 99, display: 'block',
+            zIndex: 98, display: 'block',
           }}
         />
       )}
@@ -86,7 +88,7 @@ export function Sidebar({ currentPage, onNavigate, mobileOpen, onCloseMobile, on
                 </div>
               )
             }
-            if (!config.features[item.id] && item.id !== 'dashboard') return null
+            if (config.features[item.id] === false) return null
             const Icon = item.icon
             const badgeCount = item.badge ? openRepairs : 0
             return (

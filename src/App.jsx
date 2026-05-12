@@ -14,20 +14,20 @@ import { Repairs }                from './components/repairs/Repairs.jsx'
 import { CalendarPage }           from './components/calendar/Calendar.jsx'
 import { Borrowers }              from './components/borrowers/Borrowers.jsx'
 import { Reports }                from './components/reports/Reports.jsx'
+import { Settings }               from './components/settings/Settings.jsx'
 
 const PAGE_META = {
-  dashboard: { title: 'Dashboard',      sub: null,                          search: false, cta: null             },
-  equipment: { title: 'Equipment',       sub: 'Full inventory register',     search: true,  cta: 'Add Equipment'  },
-  checkout:  { title: 'Check-Out',       sub: 'Issue equipment to borrowers',search: false, cta: null             },
-  checkin:   { title: 'Check-In',        sub: 'Record and process returns',  search: false, cta: null             },
-  repairs:   { title: 'Repairs',         sub: 'Track and resolve tickets',   search: false, cta: 'Log Repair'     },
-  calendar:  { title: 'Calendar',        sub: 'Events and packing lists',    search: false, cta: 'Add Event'      },
-  borrowers: { title: 'Players & Staff', sub: 'Borrower profiles',           search: true,  cta: 'Add Profile'    },
-  reports:   { title: 'Reports',         sub: 'Analytics and summaries',     search: false, cta: null             },
-  settings:  { title: 'Settings',         sub: 'Roles, categories, account',  search: false, cta: null             },
+  dashboard: { title: 'Dashboard',      sub: null,                           search: false, cta: null            },
+  equipment: { title: 'Equipment',       sub: 'Full inventory register',      search: true,  cta: 'Add Equipment' },
+  checkout:  { title: 'Check-Out',       sub: 'Issue equipment to borrowers', search: false, cta: null            },
+  checkin:   { title: 'Check-In',        sub: 'Record and process returns',   search: false, cta: null            },
+  repairs:   { title: 'Repairs',         sub: 'Track and resolve tickets',    search: false, cta: 'Log Repair'    },
+  calendar:  { title: 'Calendar',        sub: 'Events and packing lists',     search: false, cta: 'Add Event'     },
+  borrowers: { title: 'Players & Staff', sub: 'Borrower profiles',            search: true,  cta: 'Add Profile'   },
+  reports:   { title: 'Reports',         sub: 'Analytics and summaries',      search: false, cta: null            },
+  settings:  { title: 'Settings',        sub: 'Roles, categories, account',   search: false, cta: null            },
 }
 
-// ── Splash screen shown while auth is resolving ────────────────
 function Splash() {
   return (
     <div style={{
@@ -40,44 +40,35 @@ function Splash() {
         <path d="M10 17L14.5 21.5L24 12" stroke="var(--brand)" strokeWidth="2.2"
           strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
-      <div style={{
-        width: 32, height: 3, borderRadius: 2, background: 'var(--surface-3)', overflow: 'hidden',
-      }}>
-        <div style={{
-          height: '100%', width: '60%', background: 'var(--brand)', borderRadius: 2,
-          animation: 'slideBar 1.2s ease-in-out infinite',
-        }} />
+      <div style={{ width:32, height:3, borderRadius:2, background:'var(--surface-3)', overflow:'hidden' }}>
+        <div style={{ height:'100%', width:'60%', background:'var(--brand)', borderRadius:2, animation:'slideBar 1.2s ease-in-out infinite' }} />
       </div>
       <style>{`@keyframes slideBar{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}`}</style>
     </div>
   )
 }
 
-// ── Main shell — rendered when authenticated ───────────────────
 function Shell() {
-  const { config }                      = useApp()
+  const { config }                         = useApp()
   const { signOut, session, isConfigured } = useAuth()
-  const [page,        setPage]          = useState('dashboard')
-  const [mobileOpen,  setMobileOpen]    = useState(false)
-  const [searchValue, setSearchValue]   = useState('')
+  const [page,       setPage]       = useState('dashboard')
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [search,     setSearch]     = useState('')
   const ctaRef = useRef(null)
 
-  const navigate = (to) => { setPage(to); setSearchValue(''); setMobileOpen(false) }
-
+  const navigate = (to) => { setPage(to); setSearch(''); setMobileOpen(false) }
   const meta  = PAGE_META[page] || PAGE_META.dashboard
-  const today = new Date().toLocaleDateString('en-KE', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-  })
+  const today = new Date().toLocaleDateString('en-KE', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
 
   const renderPage = () => {
     switch (page) {
       case 'dashboard': return <Dashboard    onNavigate={navigate} />
-      case 'equipment': return <Equipment    onNavigate={navigate} searchValue={searchValue} onRegisterCta={fn => { ctaRef.current = fn }} />
+      case 'equipment': return <Equipment    onNavigate={navigate} searchValue={search} onRegisterCta={fn => { ctaRef.current = fn }} />
       case 'checkout':  return <Checkout     onNavigate={navigate} onRegisterCta={fn => { ctaRef.current = fn }} />
       case 'checkin':   return <Checkin      onNavigate={navigate} />
       case 'repairs':   return <Repairs      onNavigate={navigate} onRegisterCta={fn => { ctaRef.current = fn }} />
       case 'calendar':  return <CalendarPage onNavigate={navigate} onRegisterCta={fn => { ctaRef.current = fn }} />
-      case 'borrowers': return <Borrowers    onNavigate={navigate} searchValue={searchValue} onRegisterCta={fn => { ctaRef.current = fn }} />
+      case 'borrowers': return <Borrowers    onNavigate={navigate} searchValue={search} onRegisterCta={fn => { ctaRef.current = fn }} />
       case 'reports':   return <Reports      onNavigate={navigate} />
       case 'settings':  return <Settings />
       default:          return <Dashboard    onNavigate={navigate} />
@@ -94,32 +85,26 @@ function Shell() {
         onSignOut={isConfigured ? signOut : null}
         userEmail={session?.user?.email || null}
       />
-
       <div style={{ display:'flex', flexDirection:'column', overflow:'hidden', minWidth:0 }}>
         <Topbar
           title={meta.title}
           sub={meta.sub || today}
           onMenuClick={() => setMobileOpen(o => !o)}
           showSearch={meta.search}
-          searchValue={searchValue}
-          onSearch={setSearchValue}
+          searchValue={search}
+          onSearch={setSearch}
           ctaLabel={meta.cta}
           onCta={() => ctaRef.current?.()}
         />
-        <main style={{
-          flex:1, overflowY:'auto', overflowX:'hidden',
-          padding:'22px', background:'var(--bg)',
-        }}>
+        <main style={{ flex:1, overflowY:'auto', overflowX:'hidden', padding:'22px', background:'var(--bg)' }}>
           {renderPage()}
         </main>
       </div>
-
       <ToastContainer />
     </div>
   )
 }
 
-// ── Root — guards auth ─────────────────────────────────────────
 function Root() {
   const { isAuthenticated, loading } = useAuth()
   if (loading)          return <Splash />

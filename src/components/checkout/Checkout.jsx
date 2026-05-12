@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   Search, UserPlus, CheckCircle, Clock, User,
-  Phone, Shield, Users, ChevronRight, AlertTriangle
+  Phone, Shield, Users, ChevronRight, AlertTriangle, Trash2
 } from 'lucide-react'
 import { Modal }      from '../ui/Modal.jsx'
 import { Badge }      from '../ui/Badge.jsx'
@@ -39,7 +39,7 @@ const EMPTY_NEW_BORROWER = {
 }
 
 export function Checkout({ onNavigate, onRegisterCta }) {
-  const { equipment, borrowers, checkouts, issueEquipment, addBorrower } = useData()
+  const { equipment, borrowers, checkouts, issueEquipment, addBorrower, cancelCheckout } = useData()
   const { showToast } = useApp()
 
   const [form,        setForm]       = useState(EMPTY_FORM)
@@ -51,8 +51,9 @@ export function Checkout({ onNavigate, onRegisterCta }) {
   const searchRef = useRef()
 
   const activeCheckouts    = checkouts.filter(c => c.status === 'Active' || c.status === 'Partial')
+
   const availableEquipment = equipment.filter(e => e.available > 0 && e.status !== 'Under Repair' && e.status !== 'Lost')
-  const selectedEq         = equipment.find(e => e.id === Number(form.equipmentId))
+  const selectedEq         = equipment.find(e => String(e.id) === String(form.equipmentId))
 
   useEffect(() => { onRegisterCta?.(() => searchRef.current?.focus()) }, [onRegisterCta])
 
@@ -134,7 +135,7 @@ export function Checkout({ onNavigate, onRegisterCta }) {
     const issuedAt = new Date(`${form.issuedDate}T${form.issuedTime}:00`).toISOString()
 
     issueEquipment({
-      equipmentId:   Number(form.equipmentId),
+      equipmentId:   form.equipmentId,
       equipmentName: selectedEq.name,
       borrowerId:    bId,
       borrowerName:  form.borrowerName.trim(),
@@ -449,12 +450,29 @@ export function Checkout({ onNavigate, onRegisterCta }) {
                     </div>
                     <div className={s.tsDivider} />
                     <div className={s.tsBlock}>
-                      <span className={s.tsLabel}>Qty</span>
-                      <span className={s.tsValue} style={{ fontWeight: 700 }}>{co.qty}</span>
+                      <span className={s.tsLabel}>
+                        {co.status === 'Partial' ? 'Outstanding' : 'Qty'}
+                      </span>
+                      <span className={s.tsValue} style={{ fontWeight: 700 }}>
+                        {co.status === 'Partial'
+                          ? `${co.qty - (co.returnLines || []).reduce((s,l) => s + l.qty, 0)} / ${co.qty}`
+                          : co.qty
+                        }
+                      </span>
                     </div>
                   </div>
 
                   {co.notes && <div className={s.coNotes}>{co.notes}</div>}
+                  <div style={{display:'flex',justifyContent:'flex-end',marginTop:8}}>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      title="Cancel and void this checkout"
+                      onClick={() => {
+                        if (window.confirm(`Void checkout of ${co.equipmentName}? Stock will be restored.`))
+                          cancelCheckout(co.id)
+                      }}
+                    ><Trash2 size={11} /> Void</button>
+                  </div>
                 </div>
               )
             })

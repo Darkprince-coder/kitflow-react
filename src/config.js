@@ -26,6 +26,7 @@ const config = {
     calendar:  true,
     borrowers: true,
     reports:   true,
+    settings:  true,
   },
 
   // ── Terminology ──────────────────────────────────────────

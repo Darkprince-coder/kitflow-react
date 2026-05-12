@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Wrench, Plus, CheckCircle, XCircle, RotateCcw, Clock } from 'lucide-react'
+import { Wrench, Plus, CheckCircle, XCircle, RotateCcw, Clock, Trash2 } from 'lucide-react'
 import { Modal }      from '../ui/Modal.jsx'
 import { Badge }      from '../ui/Badge.jsx'
 import { EmptyState } from '../ui/EmptyState.jsx'
@@ -30,7 +30,7 @@ const STATUS_ACTIONS = {
 }
 
 export function Repairs({ onRegisterCta }) {
-  const { equipment, repairs, addRepair, updateRepair } = useData()
+  const { equipment, repairs, addRepair, updateRepair, deleteRepair } = useData()
   const { showToast } = useApp()
 
   const [statusFilter, setStatusFilter] = useState('')
@@ -62,9 +62,9 @@ export function Repairs({ onRegisterCta }) {
   const save = () => {
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
-    const eq = equipment.find(e => e.id === Number(form.equipmentId))
+    const eq = equipment.find(e => e.id === form.equipmentId)
     addRepair({
-      equipmentId:   Number(form.equipmentId),
+      equipmentId:   form.equipmentId,
       equipmentName: eq?.name || '',
       problem:       form.problem.trim(),
       status:        form.status,
@@ -140,13 +140,6 @@ export function Repairs({ onRegisterCta }) {
             })}
           </div>
 
-          <button
-            className="btn btn-primary btn-sm"
-            style={{ marginLeft: 'auto' }}
-            onClick={() => { setForm(EMPTY_FORM); setErrors({}); setModalOpen(true) }}
-          >
-            <Plus size={14} /> Log Repair
-          </button>
         </div>
 
         <div className="card">
@@ -214,6 +207,16 @@ export function Repairs({ onRegisterCta }) {
                                 </button>
                               )
                             })}
+                            <button
+                              className="btn btn-danger btn-sm"
+                              title="Delete ticket"
+                              onClick={() => {
+                                if (window.confirm('Delete this repair ticket?')) {
+                                  deleteRepair(r.id)
+                                  if (detailId === r.id) setDetailId(null)
+                                }
+                              }}
+                            ><Trash2 size={12} /></button>
                           </div>
                         </td>
                       </tr>

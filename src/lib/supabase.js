@@ -3,17 +3,11 @@ import config from '../config.js'
 
 const { url, anonKey } = config.supabase
 
-if (!url || !anonKey) {
-  console.warn(
-    '[KitFlow] Supabase credentials not set. ' +
-    'Copy .env.example → .env and fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.'
-  )
-}
+const DUMMY_URL = 'https://placeholder.supabase.co'
+const DUMMY_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder'
 
-export const supabase = createClient(url || 'http://localhost', anonKey || 'placeholder', {
-  auth: {
-    persistSession:    true,
-    autoRefreshToken:  true,
-    detectSessionInUrl: true,
-  },
-})
+export const supabase = createClient(
+  url || DUMMY_URL,
+  anonKey || DUMMY_KEY,
+  { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
+)

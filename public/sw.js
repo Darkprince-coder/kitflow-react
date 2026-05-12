@@ -1,62 +1,55 @@
 // KitFlow Service Worker
-// Caches the app shell for offline use.
-// Checkout and Check-In work offline; sync happens when back online.
+// Only caches in production. In dev (localhost) it does nothing
+// so Vite HMR works and stale cache never blocks updates.
 
-const CACHE_NAME = 'kitflow-v1'
+const CACHE   = 'kitflow-v1'
+const IS_DEV  = self.location.hostname === 'localhost' ||
+                self.location.hostname === '127.0.0.1'
 
-const PRECACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-]
-
-// ── Install: pre-cache shell ──────────────────────────────
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE))
-  )
+self.addEventListener('install', e => {
   self.skipWaiting()
+  if (IS_DEV) return
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(['/', '/index.html', '/manifest.json']))
+  )
 })
 
-// ── Activate: clean old caches ────────────────────────────
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
+self.addEventListener('activate', e => {
+  self.clients.claim()
+  if (IS_DEV) return
+  e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
     )
   )
-  self.clients.claim()
 })
 
-// ── Fetch: network-first for API, cache-first for assets ──
-self.addEventListener('fetch', (event) => {
-  const { request } = event
+self.addEventListener('fetch', e => {
+  // In dev: let everything through, no caching at all
+  if (IS_DEV) return
+
+  const { request } = e
   const url = new URL(request.url)
 
-  // Let Supabase API calls go through — never cache them
+  // Never cache Supabase API calls
   if (url.hostname.includes('supabase.co')) return
 
-  // For navigation requests serve index.html (SPA routing)
+  // SPA navigation — serve index.html
   if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request).catch(() =>
-        caches.match('/index.html')
-      )
+    e.respondWith(
+      fetch(request).catch(() => caches.match('/index.html'))
     )
     return
   }
 
-  // For static assets: cache-first
-  event.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached
-      return fetch(request).then(response => {
-        if (response && response.status === 200 && response.type === 'basic') {
-          const clone = response.clone()
-          caches.open(CACHE_NAME).then(cache => cache.put(request, clone))
-        }
-        return response
-      })
-    })
+  // Static assets — cache first
+  e.respondWith(
+    caches.match(request).then(cached => cached || fetch(request).then(res => {
+      if (res && res.status === 200 && res.type === 'basic') {
+        const clone = res.clone()
+        caches.open(CACHE).then(c => c.put(request, clone))
+      }
+      return res
+    }))
   )
 })

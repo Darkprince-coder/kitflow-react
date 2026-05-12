@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { UserPlus, User, Phone, Shield, Users, Edit2, Clock, Package } from 'lucide-react'
+import { UserPlus, User, Phone, Shield, Users, Edit2, Clock, Package, Trash2 } from 'lucide-react'
 import { Modal }      from '../ui/Modal.jsx'
 import { Badge }      from '../ui/Badge.jsx'
 import { EmptyState } from '../ui/EmptyState.jsx'
@@ -21,7 +21,7 @@ const ROLE_BADGE = {
 }
 
 export function Borrowers({ searchValue, onRegisterCta }) {
-  const { borrowers, checkouts, addBorrower, updateBorrower } = useData()
+  const { borrowers, checkouts, addBorrower, updateBorrower, deleteBorrower } = useData()
   const { showToast } = useApp()
 
   const [modalOpen,   setModalOpen]  = useState(false)
@@ -98,13 +98,10 @@ export function Borrowers({ searchValue, onRegisterCta }) {
           LEFT — Borrowers list
       ══════════════════════════════════════ */}
       <div className={s.listCol}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div style={{ marginBottom: 10 }}>
           <span style={{ fontSize: 11, color: 'var(--text-3)' }}>
             {filtered.length} profile{filtered.length !== 1 ? 's' : ''}
           </span>
-          <button className="btn btn-primary btn-sm" onClick={openAdd}>
-            <UserPlus size={13} /> Add Profile
-          </button>
         </div>
 
         {filtered.length === 0
@@ -157,6 +154,21 @@ export function Borrowers({ searchValue, onRegisterCta }) {
                     >
                       <Edit2 size={12} />
                     </button>
+                    {activeBorrows(b.id) === 0 && (
+                      <button
+                        className={s.deleteBtn}
+                        onClick={e => {
+                          e.stopPropagation()
+                          if (window.confirm(`Delete profile for ${b.name}?`)) {
+                            deleteBorrower(b.id)
+                            if (detailId === b.id) setDetailId(null)
+                          }
+                        }}
+                        title="Delete profile"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    )}
                   </div>
                 )
               })}

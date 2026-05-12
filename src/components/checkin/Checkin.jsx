@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Trash2, CheckCircle, Clock, AlertTriangle, Package } from 'lucide-react'
+import { Plus, Trash2, CheckCircle, Clock, AlertTriangle, Package, XCircle } from 'lucide-react'
 import { Badge }      from '../ui/Badge.jsx'
 import { EmptyState } from '../ui/EmptyState.jsx'
 import { useData }    from '../../context/DataContext.jsx'
@@ -71,7 +71,7 @@ function ReturnLine({ line, index, onChange, onRemove, maxQty }) {
 }
 
 export function Checkin({ onNavigate }) {
-  const { checkouts, returnEquipment } = useData()
+  const { checkouts, returnEquipment, deleteReturnRecord } = useData()
   const { showToast } = useApp()
 
   const [selectedId,   setSelectedId]   = useState('')
@@ -84,8 +84,16 @@ export function Checkin({ onNavigate }) {
   const returnHistory   = checkouts.filter(c => c.status === 'Returned' || c.status === 'Partial').slice(0, 15)
   const selectedCo      = checkouts.find(c => c.id === selectedId)
 
-  const totalReturnQty = returnLines.reduce((s, l) => s + (Number(l.qty) || 0), 0)
-  const remainingQty   = selectedCo ? selectedCo.qty - totalReturnQty : 0
+  // How many have already been returned in previous transactions
+  const alreadyReturned = selectedCo
+    ? (selectedCo.returnLines || []).reduce((s, l) => s + l.qty, 0)
+    : 0
+  // How many are still outstanding before THIS form submission
+  const outstandingQty  = selectedCo ? selectedCo.qty - alreadyReturned : 0
+  // Running total of what the user is entering right now
+  const totalReturnQty  = returnLines.reduce((s, l) => s + (Number(l.qty) || 0), 0)
+  // After this submission
+  const remainingQty    = outstandingQty - totalReturnQty
 
   // ── Return lines management ───────────────────────────────
   const addLine = () => setReturnLines(p => [...p, { qty: '', condition: 'Good', notes: '' }])
@@ -101,7 +109,11 @@ export function Checkin({ onNavigate }) {
   const selectCheckout = (id) => {
     setSelectedId(id)
     const co = checkouts.find(c => c.id === id)
-    if (co) setReturnLines([{ qty: String(co.qty), condition: 'Good', notes: '' }])
+    if (co) {
+      const alreadyRet = (co.returnLines || []).reduce((s, l) => s + l.qty, 0)
+      const outstanding = co.qty - alreadyRet
+      setReturnLines([{ qty: String(outstanding), condition: 'Good', notes: '' }])
+    }
     setErrors({})
   }
 
@@ -111,8 +123,8 @@ export function Checkin({ onNavigate }) {
     if (!selectedId) { e.checkout = 'Select a checkout record'; return e }
     if (returnLines.some(l => !l.qty || Number(l.qty) < 1))
       e.lines = 'Each line needs a quantity of at least 1'
-    if (totalReturnQty > selectedCo.qty)
-      e.lines = `Total returned (${totalReturnQty}) exceeds issued quantity (${selectedCo.qty})`
+    if (totalReturnQty > outstandingQty)
+      e.lines = `Total (${totalReturnQty}) exceeds outstanding (${outstandingQty})`
     if (returnLines.filter(l => l.condition === 'Damaged').some(l => !l.notes.trim()))
       e.lines = 'Describe the damage for each damaged item'
     return e
@@ -210,8 +222,15 @@ export function Checkin({ onNavigate }) {
                   </span>
                   <span className={s.tsDot} />
                   <span>
-                    <span className={s.tsLabel}>Qty issued</span>
+                    <span className={s.tsLabel}>Issued</span>
                     <span className={s.tsVal} style={{ fontWeight: 700 }}>{selectedCo.qty}</span>
+                  </span>
+                  <span className={s.tsDot} />
+                  <span>
+                    <span className={s.tsLabel}>Outstanding</span>
+                    <span className={s.tsVal} style={{ fontWeight: 700, color: outstandingQty > 0 ? 'var(--warn)' : 'var(--ok)' }}>
+                      {outstandingQty}
+                    </span>
                   </span>
                 </div>
               </div>
@@ -285,8 +304,8 @@ export function Checkin({ onNavigate }) {
                 <div className={s.qtyRow}>
                   <span>Total returning</span>
                   <span className={s.qtyNum}
-                    style={{ color: totalReturnQty > selectedCo.qty ? 'var(--danger)' : totalReturnQty === selectedCo.qty ? 'var(--ok)' : 'var(--warn)' }}>
-                    {totalReturnQty} / {selectedCo.qty}
+                    style={{ color: totalReturnQty > outstandingQty ? 'var(--danger)' : totalReturnQty === outstandingQty ? 'var(--ok)' : 'var(--warn)' }}>
+                    {totalReturnQty} / {outstandingQty}
                   </span>
                 </div>
                 {remainingQty > 0 && (
@@ -343,9 +362,19 @@ export function Checkin({ onNavigate }) {
               <div key={co.id} className={s.histCard}>
                 <div className={s.histHeader}>
                   <div className={s.histEquipName}>{co.equipmentName}</div>
-                  <Badge className={co.status === 'Returned' ? 'badge-ok' : 'badge-warn'}>
-                    {co.status}
-                  </Badge>
+                  <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                    <Badge className={co.status === 'Returned' ? 'badge-ok' : 'badge-warn'}>
+                      {co.status}
+                    </Badge>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      title="Delete return record"
+                      onClick={() => {
+                        if (window.confirm('Delete this return record? Stock will be adjusted.'))
+                          deleteReturnRecord(co.id)
+                      }}
+                    ><XCircle size={12} /></button>
+                  </div>
                 </div>
 
                 <div className={s.histMeta}>

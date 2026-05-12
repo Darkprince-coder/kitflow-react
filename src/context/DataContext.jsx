@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 import { addDays } from 'date-fns'
 import { DEFAULT_CATEGORIES } from '../utils/constants.js'
 import { db } from '../lib/db.js'
+import { supabase } from '../lib/supabase.js'
 import { useSupabase } from '../hooks/useSupabase.js'
 
 // ── Date helpers (seed data only) ─────────────────────────────
@@ -185,7 +186,7 @@ export function DataProvider({ children }) {
 
   // ── Issue Equipment ──────────────────────────────────────
   const issueEquipment = useCallback(async (data) => {
-    const eq = equipment.find(e => e.id === data.equipmentId)
+    const eq = equipment.find(e => String(e.id) === String(data.equipmentId))
     const newAvail = eq.available - data.qty
     const newStatus = newAvail === 0 ? 'Checked Out' : eq.status
 
@@ -199,6 +200,8 @@ export function DataProvider({ children }) {
       id: nextId('co','CO'),
       status: 'Active',
       returnLines: [],
+      eventId:        data.eventId        || null,
+      eventPackingId: data.eventPackingId || null,
     }
     setCheckouts(prev => [...prev, co])
     addActivity('checkout', `${eq.name} ×${data.qty} issued to ${data.borrowerName}`, `Team: ${data.team} · Coach: ${data.coach}`, 'info')
@@ -206,8 +209,7 @@ export function DataProvider({ children }) {
     if (sb.online) {
       try {
         // Use the atomic RPC for safe concurrent checkouts
-        const { data: rpcData, error } = await import('../lib/supabase.js').then(m =>
-          m.supabase.rpc('issue_equipment', {
+        const { data: rpcData, error } = await supabase.rpc('issue_equipment', {
             p_equipment_id:   data.equipmentId,
             p_equipment_name: data.equipmentName,
             p_borrower_id:    data.borrowerId,
@@ -222,7 +224,6 @@ export function DataProvider({ children }) {
             p_team:           data.team  || null,
             p_notes:          data.notes || null,
           })
-        )
         if (error) throw error
         // Update local checkout with real DB id
         setCheckouts(prev => prev.map(c =>
@@ -237,19 +238,20 @@ export function DataProvider({ children }) {
 
   // ── Return Equipment (split lines) ───────────────────────
   const returnEquipment = useCallback(async (checkoutId, returnLines) => {
-    const co = checkouts.find(c => c.id === checkoutId)
+    const co = checkouts.find(c => String(c.id) === String(checkoutId))
     if (!co) return
 
-    const totalReturned = returnLines.reduce((s, l) => s + l.qty, 0)
+    const prevReturned  = (co.returnLines || []).reduce((s, l) => s + l.qty, 0)
+    const totalReturned = prevReturned + returnLines.reduce((s, l) => s + l.qty, 0)
     const allReturned   = totalReturned >= co.qty
     const newStatus     = allReturned ? 'Returned' : 'Partial'
 
     // Optimistic: update checkout
-    setCheckouts(prev => prev.map(c =>
-      c.id === checkoutId
-        ? { ...c, returnLines, returnedDate: new Date().toISOString(), status: newStatus }
-        : c
-    ))
+    setCheckouts(prev => prev.map(c => {
+      if (String(c.id) !== String(checkoutId)) return c
+      const accumulated = [...(c.returnLines || []), ...returnLines]
+      return { ...c, returnLines: accumulated, returnedDate: new Date().toISOString(), status: newStatus }
+    }))
 
     let goodQty  = 0
     let lostQty  = 0
@@ -294,7 +296,6 @@ export function DataProvider({ children }) {
     // DB write
     if (sb.online) {
       try {
-        const { supabase } = await import('../lib/supabase.js')
         const { error } = await supabase.rpc('process_return', {
           p_checkout_id: checkoutId,
           p_lines: returnLines.map(l => ({
@@ -332,10 +333,10 @@ export function DataProvider({ children }) {
   const updateRepair = useCallback(async (id, data) => {
     setRepairs(prev => prev.map(r => r.id === id ? { ...r, ...data } : r))
     if (data.status === 'Completed') {
-      const rp = repairs.find(r => r.id === id)
+      const rp = repairs.find(r => String(r.id) === String(id))
       if (rp) {
         setEquipment(prev => prev.map(e => {
-          if (e.id !== rp.equipmentId) return e
+          if (String(e.id) !== String(rp.equipmentId)) return e
           return { ...e, available: e.available + 1, status: 'In Store' }
         }))
         addActivity('repair', `${rp.equipmentName} repair completed`, 'Restored to stock', 'ok')
@@ -422,6 +423,76 @@ export function DataProvider({ children }) {
     }
   }, [sb.online])
 
+
+
+  // ── Delete Equipment ──────────────────────────────────────
+  const deleteEquipment = useCallback(async (id) => {
+    setEquipment(prev => prev.filter(e => String(e.id) !== String(id)))
+    if (sb.online) {
+      try { await supabase.from('equipment').delete().eq('id', id) }
+      catch (err) { console.error(err) }
+    }
+  }, [sb.online])
+
+  // ── Delete a return record (void a completed/partial return) ──
+  const deleteReturnRecord = useCallback(async (checkoutId) => {
+    const co = checkouts.find(c => String(c.id) === String(checkoutId))
+    if (!co) return
+    // Restore all returned good qty back to stock
+    const goodQty = (co.returnLines || [])
+      .filter(l => l.condition === 'Good')
+      .reduce((s, l) => s + l.qty, 0)
+    if (goodQty > 0) {
+      setEquipment(prev => prev.map(e => {
+        if (String(e.id) !== String(co.equipmentId)) return e
+        return { ...e, available: e.available - goodQty }
+      }))
+    }
+    setCheckouts(prev => prev.filter(c => String(c.id) !== String(checkoutId)))
+    if (sb.online) {
+      try { await supabase.from('checkouts').delete().eq('id', checkoutId) }
+      catch (err) { console.error(err) }
+    }
+  }, [checkouts, sb.online])
+
+  // ── Delete Repair ─────────────────────────────────────────
+  const deleteRepair = useCallback(async (id) => {
+    setRepairs(prev => prev.filter(r => r.id !== id))
+    if (sb.online) {
+      try {
+        await supabase.from('repairs').delete().eq('id', id)
+      } catch (err) { console.error(err) }
+    }
+  }, [sb.online])
+
+  // ── Delete Borrower ───────────────────────────────────────
+  const deleteBorrower = useCallback(async (id) => {
+    setBorrowers(prev => prev.filter(b => b.id !== id))
+    if (sb.online) {
+      try {
+        await supabase.from('borrowers').delete().eq('id', id)
+      } catch (err) { console.error(err) }
+    }
+  }, [sb.online])
+
+  // ── Cancel Checkout (void an active checkout) ─────────────
+  const cancelCheckout = useCallback(async (checkoutId) => {
+    const co = checkouts.find(c => String(c.id) === String(checkoutId))
+    if (!co) return
+    // Restore available qty
+    setEquipment(prev => prev.map(e => {
+      if (e.id !== co.equipmentId) return e
+      const newAvail = e.available + co.qty
+      return { ...e, available: newAvail, status: newAvail > 0 ? 'In Store' : e.status }
+    }))
+    setCheckouts(prev => prev.filter(c => c.id !== checkoutId))
+    if (sb.online) {
+      try {
+        await supabase.from('checkouts').delete().eq('id', checkoutId)
+      } catch (err) { console.error(err) }
+    }
+  }, [checkouts, sb.online])
+
   return (
     <DataContext.Provider value={{
       // State
@@ -429,10 +500,12 @@ export function DataProvider({ children }) {
       // Meta
       dbOnline: sb.online, dbReady: sb.ready, dbError: sb.error,
       // Actions
-      addEquipment, updateEquipment,
+      addEquipment, updateEquipment, deleteEquipment,
+      deleteReturnRecord,
       addBorrower,  updateBorrower,
       issueEquipment, returnEquipment,
-      addRepair, updateRepair,
+      addRepair, updateRepair, deleteRepair,
+      deleteBorrower, cancelCheckout,
       addEvent, updateEvent, deleteEvent,
       addPackingItem, removePackingItem, togglePackingItemPacked,
       addCategory,
