@@ -15,6 +15,7 @@ import { CalendarPage }           from './components/calendar/Calendar.jsx'
 import { Borrowers }              from './components/borrowers/Borrowers.jsx'
 import { Reports }                from './components/reports/Reports.jsx'
 import { Settings }               from './components/settings/Settings.jsx'
+import { InstallPrompt }          from './components/pwa/InstallPrompt.jsx'
 
 const PAGE_META = {
   dashboard: { title: 'Dashboard',      sub: null,                           search: false, cta: null            },
@@ -121,6 +122,7 @@ export default function App() {
     <AppProvider>
       <AuthProvider>
         <Root />
+        <InstallPrompt />
       </AuthProvider>
     </AppProvider>
   )
